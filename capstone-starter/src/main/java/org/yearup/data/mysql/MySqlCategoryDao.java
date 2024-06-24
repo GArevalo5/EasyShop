@@ -50,12 +50,13 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
     public Category getById(int categoryId) {
         // get category by id
         try (Connection connection = dataSource.getConnection()) {
+
             String sql = """
-                    SELECT CategoryId
-                        , CategoryName
-                        , Description
+                    SELECT category_id
+                        , name
+                        , description
                     FROM categories
-                    WHERE CategoryId = ?;
+                    WHERE category_id = ?;
                     """;
 
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -66,7 +67,9 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
             if (row.next()) {
                 return mapRow(row);
             }
+
         } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
 
         return null;
@@ -82,7 +85,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
                     INSERT INTO categories(name, description)
                     VALUES(?, ?);
                     """;
-            PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement statement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 
             statement.setString(1, category.getName());
             statement.setString(2, category.getDescription());
@@ -91,6 +94,8 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
             ResultSet generatedKeys = statement.getGeneratedKeys();
             generatedKeys.next();
             newCategoryId = generatedKeys.getInt(1);
+
+
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
