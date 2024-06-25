@@ -51,7 +51,10 @@ public class CategoriesController
     public Category getById(@PathVariable int id)
     {
         // get the category by id
-        return categoryDao.getById(id);
+        Category category = categoryDao.getById(id);
+        if(category == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        return category;
     }
 
     // the url to return all products in category 1 would look like this
@@ -63,7 +66,7 @@ public class CategoriesController
     {
         // get a list of product by categoryId
         try {
-            if (productDao.listByCategoryId(categoryId) == null)
+            if (productDao.listByCategoryId(categoryId).isEmpty())
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND);
             else {
                 return productDao.listByCategoryId(categoryId);

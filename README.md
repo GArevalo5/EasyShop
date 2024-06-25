@@ -20,3 +20,8 @@ bugs and issue:
  bugs and issue:
  -Search Showing incorrect results
  -products duplicated
+
+ 6-25-24
+ CategoriesDao,CategoriesController, productDao and productConorller are all working correctly now. Started working on the shopping cart. The interface has been fixed to have functions and the shoppingCartDao has the delete function finished along with the shoppingCartController. Will work on adding the other functions tommrow and hopefully have them up and running.
+
+ bugs and issues: N/A
