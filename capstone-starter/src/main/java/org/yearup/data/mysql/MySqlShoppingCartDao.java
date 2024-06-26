@@ -33,7 +33,7 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
             statement.setInt(2, shoppingCartItem.getProductId());
             ResultSet row = statement.executeQuery();
 
-            while(row.next()){
+            if(row.next()){
                 return getByUserId(userId, shoppingCartItem);
             }
 
@@ -85,8 +85,6 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
        }
        return null;
     }
-
-
 
 }
 
