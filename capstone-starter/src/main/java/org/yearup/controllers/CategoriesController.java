@@ -1,7 +1,6 @@
 package org.yearup.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -26,15 +25,12 @@ public class CategoriesController
     private ProductDao productDao;
 
 
-    // create an Autowired controller to inject the categoryDao and ProductDao
-
     @Autowired
     public CategoriesController(CategoryDao categoryDao, ProductDao productDao){
         this.categoryDao = categoryDao;
         this.productDao = productDao;
     }
 
-    // add the appropriate annotation for a get action
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -43,8 +39,6 @@ public class CategoriesController
         // find and return all categories
         return categoryDao.getAllCategories();
     }
-
-    // add the appropriate annotation for a get action
 
     @GetMapping("{id}")
     @PreAuthorize("permitAll()")
@@ -56,9 +50,6 @@ public class CategoriesController
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         return category;
     }
-
-    // the url to return all products in category 1 would look like this
-    // https://localhost:8080/categories/1/products
 
     @GetMapping("{categoryId}/products")
     @PreAuthorize("permitAll()")
@@ -78,9 +69,6 @@ public class CategoriesController
 
     }
 
-    // add annotation to call this method for a POST action
-    // add annotation to ensure that only an ADMIN can call this function
-
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -91,9 +79,6 @@ public class CategoriesController
         return newCategory;
     }
 
-    // add annotation to call this method for a PUT (update) action - the url path must include the categoryId
-    // add annotation to ensure that only an ADMIN can call this function
-
     @PostMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -101,10 +86,6 @@ public class CategoriesController
         // update the category by id
         categoryDao.update(id, category);
     }
-
-
-    // add annotation to call this method for a DELETE action - the url path must include the categoryId
-    // add annotation to ensure that only an ADMIN can call this function
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

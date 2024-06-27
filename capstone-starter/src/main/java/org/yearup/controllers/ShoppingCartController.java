@@ -28,16 +28,13 @@ public class ShoppingCartController
 
 
     // create an Autowired constructor to inject the shoppingCartDao
+
     @Autowired
     public ShoppingCartController(ShoppingCartDao shoppingCartDao, UserDao userDao, ProductDao productDao) {
         this.shoppingCartDao = shoppingCartDao;
         this.userDao = userDao;
         this.productDao = productDao;
-
     }
-
-
-
 
     // each method in this controller requires a Principal object as a parameter
     @GetMapping("/cart/{userId}/products")
@@ -53,7 +50,7 @@ public class ShoppingCartController
             int userId = user.getId();
 
             // use the shoppingcartDao to get all items in the cart and return the cart
-            return shoppingCartDao.getByUserId(userId, shoppingCartItem);
+            return shoppingCartDao.getByUserId(userId, shoppingCartItem.getProductId(), shoppingCartItem.getQuantity());
         }
         catch(Exception e)
         {

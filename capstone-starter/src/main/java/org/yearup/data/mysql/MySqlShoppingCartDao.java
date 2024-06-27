@@ -3,9 +3,9 @@ package org.yearup.data.mysql;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.yearup.data.ShoppingCartDao;
+import org.yearup.models.Product;
 import org.yearup.models.ShoppingCart;
 import org.yearup.models.ShoppingCartItem;
-
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,28 +23,37 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
     }
 
     @Override
-    public ShoppingCart getByUserId(int userId, ShoppingCartItem shoppingCartItem) {
+    public ShoppingCart getByUserId(int userId,int productId, int quantity) {
+        ShoppingCart shoppingCart = new ShoppingCart();
+
         try(Connection connection = dataSource.getConnection()){
 
-            String sql = "SELECT * FROM shopping_cart WHERE user_id = ?";
+            String sql = """
+                    SELECT user_id,
+                     product_id,
+                    quantity
+                    FROM shopping_cart
+                    WHERE user_id = ?;
+            """;
 
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1, userId);
-            statement.setInt(2, shoppingCartItem.getProductId());
+            statement.setInt(2, productId);
+            statement.setInt(3, quantity);
             ResultSet row = statement.executeQuery();
 
-            if(row.next()){
-                return getByUserId(userId, shoppingCartItem);
-            }
 
+            while(row.next()){
+                shoppingCart = mapToRowShoppingCart(row);
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return null;
+        return shoppingCart;
     }
 
     @Override
-    public ShoppingCart addProductToCart(int userId, int productId) {
+    public void addProductToCart(int userId, int productId) {
         try(Connection connection = dataSource.getConnection()){
             String sql = """
                     INSERT INTO shopping_cart (user_id, product_id, quantity)
@@ -59,16 +68,30 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return null;
     }
 
     @Override
-    public ShoppingCart updateProductInCart(int userId, int productId, int quantity) {
-        return null;
+    public void updateProductInCart(int userId, int productId, int quantity) {
+        try {
+            Connection connection = dataSource.getConnection();
+            String sql = """
+                    UPDATE shopping_cart
+                    SET quantity = ?
+                    WHERE user_id = ? AND product_id = ?;
+                    """;
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, quantity);
+            statement.setInt(2, userId);
+            statement.setInt(3, productId);
+            statement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public ShoppingCart DeleteCart(int userId)
+    public void DeleteCart(int userId)
     {
        try(Connection connection = dataSource.getConnection()){
            String sql = """
@@ -79,12 +102,27 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
               statement.setInt(1, userId);
                 statement.executeUpdate();
 
-
        } catch (SQLException e) {
            throw new RuntimeException(e);
        }
-       return null;
     }
 
-}
+
+
+        private ShoppingCart mapToRowShoppingCart(ResultSet row) throws SQLException {
+            ShoppingCart shoppingCart = new ShoppingCart();
+            ShoppingCartItem item = new ShoppingCartItem();
+            Product product = new Product();
+
+            product.setProductId(row.getInt("product_id"));
+            item.setProduct(product);
+            item.setQuantity(row.getInt("quantity"));
+
+            shoppingCart.add(item);
+
+            return shoppingCart;
+        }
+    }
+
+
 
